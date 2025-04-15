@@ -40,12 +40,11 @@ read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICE
 if [ "$NODE_CHOICE" = "1" ]; then
   log "Master Node Selected, Changing Hostname of this Machine..."
   hostnamectl set-hostname master
-  bash
   
 else 
   log "Worker Node Selected, Changing Hostname of this Machine..."
   hostnamectl set-hostname worker
-  bash
+
 fi
 
 
