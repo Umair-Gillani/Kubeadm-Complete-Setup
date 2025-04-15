@@ -220,6 +220,8 @@ if [ "$NODE_CHOICEs" = "1" ]; then
     cilium install --version 1.17.2
     cilium install --kubeconfig ~/.kube/config
     cilium status
+    cilium hubble enable
+    # kubectl port-forward -n kube-system svc/hubble-ui 8080:80
 
     echo " "
     echo " "
