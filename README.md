@@ -6,6 +6,20 @@ This project provides a Bash script to automate the installation and configurati
 
 ---
 
+## Run this Script Directly into your VM
+
+```bash
+curl -s https://raw.githubusercontent.com/Umair-Gillani/Kubeadm-Complete-Setup/main/Kubeadm-Complete-Setup.sh | bash
+```
+
+or
+
+```bash
+wget -qO- https://raw.githubusercontent.com/Umair-Gillani/Kubeadm-Complete-Setup/main/Kubeadm-Complete-Setup.sh | bash
+```
+
+---
+
 ## Overview
 
 1. **Updates and upgrades packages** to ensure your system is up to date.
