@@ -153,9 +153,9 @@ log "Setup complete. Your system is ready for Kubernetes!"
 # ==========================================================================
 
 log "Is this your MASTER NODE?"
-read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICE
+read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICEs
 
-if [ "$NODE_CHOICE" = "1" ]; then
+if [ "$NODE_CHOICEs" = "1" ]; then
 
         #--- 10. Cilinium CLI INSTALLATION ----------------------------------------------------
         log "Installing Cilium CLI..."
