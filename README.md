@@ -6,19 +6,16 @@ This project provides a Bash script to automate the installation and configurati
 
 ---
 
-## Run this Script Directly into your VM
+## Commands
 
 > **Note:** Switch to root user.
 
 
 ```bash
-curl -s https://raw.githubusercontent.com/Umair-Gillani/Kubeadm-Complete-Setup/main/Kubeadm-Complete-Setup.sh | bash
-```
-
-or
-
-```bash
-wget -qO- https://raw.githubusercontent.com/Umair-Gillani/Kubeadm-Complete-Setup/main/Kubeadm-Complete-Setup.sh | bash
+git clone https://github.com/Umair-Gillani/Kubeadm-Complete-Setup.git
+cd  Kubeadm-Complete-Setup/
+chmod +x Kubeadm-Complete-Setup.sh 
+bash Kubeadm-Complete-Setup.sh
 ```
 
 
