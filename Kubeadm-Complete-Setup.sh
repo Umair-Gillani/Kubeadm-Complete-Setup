@@ -33,6 +33,23 @@ if [[ $EUID -ne 0 ]]; then
   error_exit "Please run this script as root (e.g. sudo ./setup-k8s.sh)."
 fi
 
+
+log "Setting Hostname according to your Nodes, Is this your MASTER NODE?"
+read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICE
+
+if [ "$NODE_CHOICE" = "1" ]; then
+  log "Master Node Selected, Changing Hostname of this Machine..."
+  hostnamectl set-hostname master
+  bash
+  
+else 
+  log "Worker Node Selected, Changing Hostname of this Machine..."
+  hostnamectl set-hostname worker
+  bash
+fi
+
+
+
 #--- 1. UPDATE & UPGRADE PACKAGES ---------------------------------------------
 log "Updating and upgrading system packages..."
 apt-get update -y || error_exit "Failed to update package lists."
@@ -128,7 +145,7 @@ log "Setup complete. Your system is ready for Kubernetes!"
 
 ==========================================================================
 
-log "Is this your master node?"
+log "Is this your MASTER NODE?"
 read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICE
 
 if [ "$NODE_CHOICE" = "1" ]; then
