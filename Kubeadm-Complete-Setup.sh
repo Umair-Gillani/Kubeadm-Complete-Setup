@@ -221,6 +221,18 @@ if [ "$NODE_CHOICEs" = "1" ]; then
     cilium install --kubeconfig ~/.kube/config
     cilium status
 
+    echo " "
+    echo " "
+    echo " "
+    echo "============================================================================ "
+
+    log "Run This Below Command into your all Worker Nodes to Connect with Master Node"
+    kubeadm token create --print-join-command
+    
+    echo "============================================================================ "
+    echo " "
+    echo " "
+    echo " "
 else
   echo " "
   echo " "
@@ -242,9 +254,3 @@ fi
 
 
 
-echo " "
-echo " "
-echo " "
-echo " "
-log "Run This Below Command into your all Worker Nodes to Connect with Master Node"
-kubeadm token create --print-join-command
