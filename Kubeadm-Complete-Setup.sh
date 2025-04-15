@@ -40,11 +40,13 @@ read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICE
 if [ "$NODE_CHOICE" = "1" ]; then
   log "Master Node Selected, Changing Hostname of this Machine..."
   hostnamectl set-hostname master
-  
+  echo " "
+  echo " "
 else 
   log "Worker Node Selected, Changing Hostname of this Machine..."
   hostnamectl set-hostname worker
-
+  echo " "
+  echo " "
 fi
 
 
@@ -53,11 +55,15 @@ fi
 log "Updating and upgrading system packages..."
 apt-get update -y || error_exit "Failed to update package lists."
 apt-get upgrade -y || error_exit "Failed to upgrade packages."
+echo " "
+echo " "
 
 #--- 2. INSTALL PREREQUISITES --------------------------------------------------
 log "Installing general dependencies..."
 apt-get install -y apt-transport-https ca-certificates curl gpg || \
   error_exit "Failed to install apt-transport-https, ca-certificates, curl, gpg."
+echo " "
+echo " "
 
 #--- 3. LOAD KERNEL MODULES ----------------------------------------------------
 log "Loading kernel modules (overlay, br_netfilter)..."
@@ -69,31 +75,43 @@ EOF
 # Immediately load the modules
 modprobe overlay || error_exit "Failed to load module: overlay."
 modprobe br_netfilter || error_exit "Failed to load module: br_netfilter."
+echo " "
+echo " "
 
 #--- 4. DISABLE SWAP -----------------------------------------------------------
 log "Disabling swap..."
 swapoff -a || error_exit "Failed to swap off."
 # Optional: remove any swap entries from /etc/fstab to avoid re-enabling after reboot
 sed -i '/swap/d' /etc/fstab
+echo " "
+echo " "
 
 #--- 5. DIST UPGRADE -----------------------------------------------------------
 log "Performing dist-upgrade..."
 apt-get update -y || error_exit "Failed to update package lists (second time)."
 apt-get dist-upgrade -y || error_exit "Failed to dist-upgrade."
+echo " "
+echo " "
 
 #--- 6. INSTALL & CONFIGURE CONTAINERD -----------------------------------------
 log "Installing containerd..."
 apt-get install -y containerd || error_exit "Failed to install containerd."
 mkdir -p /etc/containerd
 containerd config default | tee /etc/containerd/config.toml
+echo " "
+echo " "
 
 # Configure systemd cgroup driver
 log "Configuring containerd to use systemd as cgroup driver..."
 sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+echo " "
+echo " "
 
 log "Restarting and enabling containerd..."
 systemctl restart containerd || error_exit "Failed to restart containerd."
 systemctl enable containerd || error_exit "Failed to enable containerd."
+echo " "
+echo " "
 
 #--- 7. ADD KUBERNETES REPOSITORY & INSTALL KUBELET, KUBEADM, KUBECTL ---------
 log "Configuring Kubernetes apt repository..."
@@ -105,15 +123,22 @@ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | \
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' \
   | tee /etc/apt/sources.list.d/kubernetes.list
 
+echo " "
+echo " "
+
 log "Updating package lists and installing kubelet, kubeadm, kubectl..."
 apt-get update -y || error_exit "Failed to update package lists for Kubernetes."
 apt-get install -y kubelet kubeadm kubectl || error_exit "Failed to install Kubernetes components."
 
 # Prevent them from being upgraded accidentally
 apt-mark hold kubelet kubeadm kubectl
+echo " "
+echo " "
 
 log "Enabling kubelet service..."
 systemctl enable --now kubelet || error_exit "Failed to enable kubelet."
+echo " "
+echo " "
 
 #--- 8. KERNEL SYSCTL SETTINGS FOR K8S -----------------------------------------
 log "Configuring sysctl for Kubernetes networking..."
@@ -132,6 +157,8 @@ net.bridge.bridge-nf-call-iptables  = 1
 EOF
 
 sysctl --system || error_exit "Failed to apply br_netfilter changes."
+echo " "
+echo " "
 
 #--- 9. VERIFY INSTALLATION ----------------------------------------------------
 log "Verifying kubeadm, kubelet, and kubectl versions..."
@@ -151,13 +178,16 @@ log "Setup complete. Your system is ready for Kubernetes!"
 
 
 # ==========================================================================
-
+echo " "
+echo " "
 log "Is this your MASTER NODE?"
 read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICEs
 
 if [ "$NODE_CHOICEs" = "1" ]; then
 
         #--- 10. Cilinium CLI INSTALLATION ----------------------------------------------------
+        echo " "
+        echo " "
         log "Installing Cilium CLI..."
         CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
         CLI_ARCH=amd64
@@ -167,7 +197,8 @@ if [ "$NODE_CHOICEs" = "1" ]; then
         sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
         rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 
-
+        echo " "
+        echo " "
         #--- 11. Cilinium INSTALLATION ----------------------------------------------------
         log "Installing Cilium..."
         cilium install --version 1.17.2
@@ -175,5 +206,7 @@ if [ "$NODE_CHOICEs" = "1" ]; then
         cilium status
 
 else
-  echo "Worker node selected. Skipping Cilium installation."
+  echo " "
+  echo " "
+  log "Worker node selected. Skipping Cilium installation."
 fi
