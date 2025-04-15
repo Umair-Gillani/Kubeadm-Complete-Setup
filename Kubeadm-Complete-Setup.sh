@@ -196,6 +196,13 @@ if [ "$NODE_CHOICEs" = "1" ]; then
 
     echo " "
     echo " "
+    log "Moving .kube/config file to $HOME"
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+    echo " "
+    echo " "
     #--- 10. Cilinium CLI INSTALLATION ----------------------------------------------------
     log "Installing Cilium CLI..."
     CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -211,7 +218,7 @@ if [ "$NODE_CHOICEs" = "1" ]; then
     #--- 11. Cilinium INSTALLATION ----------------------------------------------------
     log "Installing Cilium..."
     cilium install --version 1.17.2
-    sleep 10
+    cilium install --kubeconfig ~/.kube/config
     cilium status
 
 else
