@@ -8,6 +8,9 @@ This project provides a Bash script to automate the installation and configurati
 
 ## Run this Script Directly into your VM
 
+> **Note:** Switch to root user.
+
+
 ```bash
 curl -s https://raw.githubusercontent.com/Umair-Gillani/Kubeadm-Complete-Setup/main/Kubeadm-Complete-Setup.sh | bash
 ```
@@ -17,6 +20,7 @@ or
 ```bash
 wget -qO- https://raw.githubusercontent.com/Umair-Gillani/Kubeadm-Complete-Setup/main/Kubeadm-Complete-Setup.sh | bash
 ```
+
 
 ---
 
