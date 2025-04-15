@@ -135,10 +135,18 @@ sysctl --system || error_exit "Failed to apply br_netfilter changes."
 
 #--- 9. VERIFY INSTALLATION ----------------------------------------------------
 log "Verifying kubeadm, kubelet, and kubectl versions..."
+echo " "
+echo " "
+log "kubeadm version..."
 kubeadm version   || error_exit "kubeadm not found or failed to run."
+echo " "
+log "kubelet version..."
 kubelet --version || error_exit "kubelet not found or failed to run."
+echo " "
+log "kubectl version..."
 kubectl version --client || error_exit "kubectl not found or failed to run."
-
+echo " "
+echo " "
 log "Setup complete. Your system is ready for Kubernetes!"
 
 
