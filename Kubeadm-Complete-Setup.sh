@@ -222,6 +222,7 @@ if [ "$NODE_CHOICEs" = "1" ]; then
     cilium status
     cilium hubble enable
     # kubectl port-forward -n kube-system svc/hubble-ui 8080:80
+    # access hubble UI on your local machine on this URL 'http://localhost:12000'
 
     echo " "
     echo " "
