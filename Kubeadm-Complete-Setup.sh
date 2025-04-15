@@ -142,7 +142,7 @@ kubectl version --client || error_exit "kubectl not found or failed to run."
 log "Setup complete. Your system is ready for Kubernetes!"
 
 
-==========================================================================
+# ==========================================================================
 
 log "Is this your MASTER NODE?"
 read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICE
