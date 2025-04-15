@@ -239,3 +239,12 @@ else
   echo " "
   echo " "
 fi
+
+
+
+echo " "
+echo " "
+echo " "
+echo " "
+log "Run This Below Command into your all Worker Nodes to Connect with Master Node"
+kubeadm token create --print-join-command
