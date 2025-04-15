@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 #===============================================================================
 # This script sets up Kubernetes prerequisites on a Debian/Ubuntu-based system.
@@ -32,24 +31,6 @@ error_exit() {
 if [[ $EUID -ne 0 ]]; then
   error_exit "Please run this script as root (e.g. sudo ./setup-k8s.sh)."
 fi
-
-
-log "Setting Hostname according to your Nodes, Is this your MASTER NODE?"
-read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICE
-
-if [ "$NODE_CHOICE" = "1" ]; then
-  log "Master Node Selected, Changing Hostname of this Machine..."
-  hostnamectl set-hostname master
-  echo " "
-  echo " "
-else 
-  log "Worker Node Selected, Changing Hostname of this Machine..."
-  hostnamectl set-hostname worker
-  echo " "
-  echo " "
-fi
-
-
 
 #--- 1. UPDATE & UPGRADE PACKAGES ---------------------------------------------
 log "Updating and upgrading system packages..."
@@ -185,28 +166,69 @@ read -p "Press 1 for master, or press Enter for worker: " NODE_CHOICEs
 
 if [ "$NODE_CHOICEs" = "1" ]; then
 
-        #--- 10. Cilinium CLI INSTALLATION ----------------------------------------------------
-        echo " "
-        echo " "
-        log "Installing Cilium CLI..."
-        CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-        CLI_ARCH=amd64
-        if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
-        curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-        sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
-        sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-        rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+    log "Master Node Selected, Changing Hostname of this Machine..."
+    hostnamectl set-hostname master
+    echo " "
+    echo " "
+    
+    # ===================== ADDED: IP DETECTION FOR MASTER =====================
+    log "Detecting private IP..."
+    PRIVATE_IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \\K[\\d.]+' || true)
 
-        echo " "
-        echo " "
-        #--- 11. Cilinium INSTALLATION ----------------------------------------------------
-        log "Installing Cilium..."
-        cilium install --version 1.17.2
-        sleep 10
-        cilium status
+    if [ -z "${PRIVATE_IP}" ]; then
+      PRIVATE_IP=$(ip route get 8.8.8.8 2>/dev/null | grep -oP 'src \\K[\\d.]+' || true)
+    fi
+
+    if [ -z "${PRIVATE_IP}" ]; then
+      PRIVATE_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || true)
+    fi
+
+    if [ -z "${PRIVATE_IP}" ]; then
+      error_exit "Could not determine private IP automatically."
+    fi
+    log "Detected private IP: ${PRIVATE_IP}"
+
+    echo " "
+    echo " "
+    log "Initializing Kubernetes cluster on MASTER..."
+    sudo kubeadm init --pod-network-cidr=10.0.0.0/16 --apiserver-advertise-address="${PRIVATE_IP}"
+    # ===================== END OF ADDED IP DETECTION & INIT ===================
+
+    echo " "
+    echo " "
+    #--- 10. Cilinium CLI INSTALLATION ----------------------------------------------------
+    log "Installing Cilium CLI..."
+    CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+    CLI_ARCH=amd64
+    if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+    sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+    sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+    rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+
+    echo " "
+    echo " "
+    #--- 11. Cilinium INSTALLATION ----------------------------------------------------
+    log "Installing Cilium..."
+    cilium install --version 1.17.2
+    sleep 10
+    cilium status
 
 else
   echo " "
   echo " "
   log "Worker node selected. Skipping Cilium installation."
+
+  # ===================== ADDED: EXAMPLE FOR WORKER JOIN ======================
+  echo " "
+  echo "Use the join command from the MASTER to join this node to the cluster."
+  echo "For example (replace TOKEN and HASH with actual values):"
+  echo "sudo kubeadm join ${HOSTNAME}:6443 --token <TOKEN> --discovery-token-ca-cert-hash sha256:<HASH>"
+  # ===================== END OF ADDED WORKER COMMANDS ========================
+  echo " "
+  echo " "
+  log "Worker Node Selected, Changing Hostname of this Machine..."
+  hostnamectl set-hostname worker
+  echo " "
+  echo " "
 fi
