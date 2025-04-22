@@ -220,10 +220,28 @@ if [ "$NODE_CHOICEs" = "1" ]; then
     cilium install --version 1.17.2
     # cilium install --kubeconfig ~/.kube/config
     cilium status
-    cilium hubble enable
-    # kubectl port-forward -n kube-system svc/hubble-ui 8080:80
-    # access hubble UI on your local machine on this URL 'http://localhost:12000'
+    cilium hubble enable --ui --relay
+    # kubectl -n kube-system patch deployment hubble-ui   --type=json   -p='[{"op":"add","path":"/spec/template/spec/tolerations","value":[{"key":"node-role.kubernetes.io/control-plane","operator":"Exists","effect":"NoSchedule"}]}]'
+    # kubectl -n kube-system patch svc hubble-ui   --type='json'   -p='[{"op":"replace","path":"/spec/type","value":"NodePort"}]'
+    # kubectl -n kube-system get svc hubble-ui
+    # kubectl taint nodes master node-role.kubernetes.io/control-plane:NoSchedule-
+    # kubectl port-forward -n kube-system svc/hubble-ui 12000:80
+# access hubble UI on your local machine on this URL 'http://<node-ip>:<nodeport>'
 
+
+    log "In order to access the observability data collected by Hubble, you must first install Hubble CLI."
+    HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+    HUBBLE_ARCH=amd64
+    if [ "$(uname -m)" = "aarch64" ]; then HUBBLE_ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+    sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum
+    sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
+    rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+    hubble status
+    hubble observe
+    # cilium hubble port-forward&
+    
+    
     echo " "
     echo " "
     echo " "
