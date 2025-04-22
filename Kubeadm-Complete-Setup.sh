@@ -218,7 +218,7 @@ if [ "$NODE_CHOICEs" = "1" ]; then
     #--- 11. Cilinium INSTALLATION ----------------------------------------------------
     log "Installing Cilium..."
     cilium install --version 1.17.2
-    cilium install --kubeconfig ~/.kube/config
+    # cilium install --kubeconfig ~/.kube/config
     cilium status
     cilium hubble enable
     # kubectl port-forward -n kube-system svc/hubble-ui 8080:80
@@ -236,6 +236,12 @@ if [ "$NODE_CHOICEs" = "1" ]; then
     echo " "
     echo " "
     echo " "
+    echo "============================================================================ "
+
+    log "Setup Complete but cilium will take time to create pods making nodes Ready, run 'kubectl get nodes' on master VM to check status"
+    kubectl get nodes
+
+    echo "============================================================================ "
 else
   echo " "
   echo " "
