@@ -19,8 +19,9 @@ set -Eeuo pipefail
 
 #--- HELPER FUNCTIONS ----------------------------------------------------------
 log() {
-  echo -e "\\033[1;34m[INFO] $*\\033[0m"
+  echo -e "\033[1;34m$(date '+%Y-%m-%d %H:%M:%S') : [INFO] $*\033[0m"
 }
+
 
 error_exit() {
   echo -e "\\033[1;31m[ERROR] $*\\033[0m" >&2
