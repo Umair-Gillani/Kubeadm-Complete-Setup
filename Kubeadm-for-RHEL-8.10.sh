@@ -9,8 +9,8 @@
 # - Opens common kubeadm + Cilium firewall ports when firewalld is active
 #
 # Usage:
-#   sudo bash setup-k8s-rhel8-v2.sh master
-#   sudo bash setup-k8s-rhel8-v2.sh worker
+#   sudo bash setup-k8s-rhel8-v3.sh master
+#   sudo bash setup-k8s-rhel8-v3.sh worker
 #
 # Optional environment variables:
 #   K8S_MINOR=v1.35
@@ -48,7 +48,7 @@ error_exit() {
 
 require_root() {
   if [[ ${EUID} -ne 0 ]]; then
-    error_exit "Please run this script as root, for example: sudo bash setup-k8s-rhel8-v2.sh master"
+    error_exit "Please run this script as root, for example: sudo bash setup-k8s-rhel8-v3.sh master"
   fi
 }
 
@@ -216,7 +216,7 @@ enable_cgroup_v2_boot() {
 }
 
 install_containerd() {
-  log "Removing conflicting Docker engine packages if present..."
+  log "Removing conflicting container packages if present..."
   dnf -y remove \
     docker \
     docker-client \
@@ -225,7 +225,9 @@ install_containerd() {
     docker-latest \
     docker-latest-logrotate \
     docker-logrotate \
-    docker-engine || true
+    docker-engine \
+    podman \
+    runc || true
 
   log "Adding Docker repository for containerd.io..."
   dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
@@ -239,13 +241,6 @@ install_containerd() {
 
   log "Configuring containerd to use SystemdCgroup=true..."
   sed -ri 's/^([[:space:]]*)SystemdCgroup = false/\1SystemdCgroup = true/' /etc/containerd/config.toml
-
-  cat > /etc/crictl.yaml <<EOF_CRICTL
-runtime-endpoint: ${CONTAINERD_SOCK}
-image-endpoint: ${CONTAINERD_SOCK}
-timeout: 10
-debug: false
-EOF_CRICTL
 
   log "Enabling and restarting containerd..."
   systemctl daemon-reload

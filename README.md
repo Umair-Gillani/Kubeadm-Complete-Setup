@@ -1,6 +1,47 @@
 # Kubeadm-Complete-Setup
 
-# Kubernetes + Cilium Setup Script
+# Kubernetes + Cilium Setup Script For RHEL 8.10
+
+Use it like this on the current machine:
+
+```bash
+git clone https://github.com/Umair-Gillani/Kubeadm-Complete-Setup.git
+cd  Kubeadm-Complete-Setup/
+chmod +x setup-k8s-rhel8-v2.sh
+sudo bash setup-k8s-rhel8-v2.sh master    # for master node
+```
+```bash
+sudo bash setup-k8s-rhel8-v2.sh worker    # for worker node
+```
+
+On the first run, it will likely stop after setting cgroups v2 for boot and ask for a reboot. Then do:
+
+```bash
+sudo reboot
+```
+
+After reboot, verify:
+
+```bash
+stat -fc %T /sys/fs/cgroup
+```
+
+You should see:
+```bash
+cgroup2fs
+```
+
+Then run the script again:
+```bash
+sudo bash setup-k8s-rhel8-v2.sh master
+```
+
+
+---
+---
+---
+
+# Kubernetes + Cilium Setup Script For Ubuntu
 
 This project provides a Bash script to automate the installation and configuration of Kubernetes prerequisites and the Cilium CNI plugin. It is intended for **Debian/Ubuntu-based** systems.
 
