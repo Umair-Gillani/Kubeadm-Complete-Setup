@@ -477,15 +477,8 @@ prepare_worker() {
   echo ""
   echo ""
   echo "============================================================================"
-  warn "
-  Execute below commands to deploy hubble pods on control-plane if you have one Master node cluster only for testing purpose only 
-
-  kubectl patch deployment hubble-relay -n kube-system -p \
-  '{"spec": {"template": {"spec": {"tolerations": [{"key": "node-role.kubernetes.io/control-plane", "operator": "Exists", "effect": "NoSchedule"}]}}}}'
-
-  kubectl patch deployment hubble-ui -n kube-system -p \
-  '{"spec": {"template": {"spec": {"tolerations": [{"key": "node-role.kubernetes.io/control-plane", "operator": "Exists", "effect": "NoSchedule"}]}}}}'
-  "
+  warn " Hubble pods will be deployed on worker nodes only and if you need to deploy within master node do change the svc file 
+  where is it pointing ClusterIP, change it to NodePort and also update the taints and tolerance of hubble pods"
   echo "============================================================================"
 
 }
