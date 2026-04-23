@@ -478,7 +478,9 @@ prepare_worker() {
   echo ""
   echo "============================================================================"
   warn " Hubble pods will be deployed on worker nodes only and if you need to deploy within master node do change the svc file 
-  where is it pointing ClusterIP, change it to NodePort and also update the taints and tolerance of hubble pods"
+  where is it pointing ClusterIP, change it to NodePort and also update the taints and tolerance of hubble pods
+  Execute this below command to untaint the master node
+  kubectl taint nodes master node-role.kubernetes.io/control-plane:NoSchedule-"
   echo "============================================================================"
 
 }
