@@ -474,6 +474,20 @@ prepare_worker() {
   echo "Example:"
   echo "kubeadm join <CONTROL-PLANE-IP>:6443 --token <TOKEN> --discovery-token-ca-cert-hash sha256:<HASH> --cri-socket ${CONTAINERD_SOCK}"
   echo "============================================================================"
+  echo ""
+  echo ""
+  echo "============================================================================"
+  warn "
+  Execute below commands to deploy hubble pods on control-plane if you have one Master node cluster only for testing purpose only 
+
+  kubectl patch deployment hubble-relay -n kube-system -p \
+  '{"spec": {"template": {"spec": {"tolerations": [{"key": "node-role.kubernetes.io/control-plane", "operator": "Exists", "effect": "NoSchedule"}]}}}}'
+
+  kubectl patch deployment hubble-ui -n kube-system -p \
+  '{"spec": {"template": {"spec": {"tolerations": [{"key": "node-role.kubernetes.io/control-plane", "operator": "Exists", "effect": "NoSchedule"}]}}}}'
+  "
+  echo "============================================================================"
+
 }
 
 main() {
@@ -499,3 +513,6 @@ main() {
 }
 
 main "$@"
+
+
+
