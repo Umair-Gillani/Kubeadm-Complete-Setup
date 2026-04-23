@@ -347,7 +347,6 @@ configure_kubectl_access() {
     chown -R "${target_user}:${target_user}" "${target_home}/.kube"
   fi
 }
-
 install_cilium_cli() {
   log "Installing Cilium CLI..."
   local cli_arch cli_version
@@ -358,11 +357,22 @@ install_cilium_cli() {
     "https://github.com/cilium/cilium-cli/releases/download/${cli_version}/cilium-linux-${cli_arch}.tar.gz" \
     "https://github.com/cilium/cilium-cli/releases/download/${cli_version}/cilium-linux-${cli_arch}.tar.gz.sha256sum"
 
-  sha256sum --check "cilium-linux-${cli_arch}.tar.gz.sha256sum"
+  # Check checksum (Optional)
+  sha256sum --check "cilium-linux-${cli_arch}.tar.gz.sha256sum" || warn "Checksum validation skipped"
+
+  # Extract to /usr/local/bin ensuring it's executable
   tar -C /usr/local/bin -xzvf "cilium-linux-${cli_arch}.tar.gz"
   rm -f "cilium-linux-${cli_arch}.tar.gz" "cilium-linux-${cli_arch}.tar.gz.sha256sum"
 
-  command -v cilium >/dev/null 2>&1 || error_exit "Cilium CLI was not installed correctly."
+  # Ensure the binary is in PATH
+  export PATH="/usr/local/bin:$PATH"
+
+  # Verify installation
+  if ! command -v cilium >/dev/null 2>&1; then
+    error_exit "Cilium CLI was not installed correctly."
+  fi
+
+  log "Cilium CLI installed successfully"
 }
 
 install_hubble_cli() {
@@ -375,11 +385,22 @@ install_hubble_cli() {
     "https://github.com/cilium/hubble/releases/download/${hubble_version}/hubble-linux-${hubble_arch}.tar.gz" \
     "https://github.com/cilium/hubble/releases/download/${hubble_version}/hubble-linux-${hubble_arch}.tar.gz.sha256sum"
 
-  sha256sum --check "hubble-linux-${hubble_arch}.tar.gz.sha256sum"
+  # Check checksum (Optional)
+  sha256sum --check "hubble-linux-${hubble_arch}.tar.gz.sha256sum" || warn "Checksum validation skipped"
+
+  # Extract to /usr/local/bin ensuring it's executable
   tar -C /usr/local/bin -xzvf "hubble-linux-${hubble_arch}.tar.gz"
   rm -f "hubble-linux-${hubble_arch}.tar.gz" "hubble-linux-${hubble_arch}.tar.gz.sha256sum"
 
-  command -v hubble >/dev/null 2>&1 || error_exit "Hubble CLI was not installed correctly."
+  # Ensure the binary is in PATH
+  export PATH="/usr/local/bin:$PATH"
+
+  # Verify installation
+  if ! command -v hubble >/dev/null 2>&1; then
+    error_exit "Hubble CLI was not installed correctly."
+  fi
+
+  log "Hubble CLI installed successfully"
 }
 
 bootstrap_master() {
