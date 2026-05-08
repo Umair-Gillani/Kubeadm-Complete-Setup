@@ -438,6 +438,18 @@ bootstrap_master() {
   log "Waiting for Cilium to become ready..."
   cilium status --wait
 
+# ===================================================================================
+  # log "Waiting for Cilium to become ready..."
+  # if ! cilium status --wait; then
+  #   warn "Cilium did not become fully ready. Restarting CoreDNS and retrying..."
+  
+  #   kubectl -n kube-system rollout restart deployment coredns || true
+  #   kubectl -n kube-system rollout status deployment coredns --timeout=180s || true
+  
+  #   cilium status --wait
+  # fi
+# ===================================================================================
+
   log "Enabling Hubble Relay and UI..."
   cilium hubble enable --ui
 
